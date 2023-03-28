@@ -49,9 +49,9 @@ Products Supported
 
 - [Robot Operating System (ROS)](http://wiki.ros.org) (middleware for robotics)
   
-    Running this program requires ROS support. If it is not installed, please install ROS first.
+    Running this program requires ROS2 support. If it is not installed, please install ROS2 first.
 
-- [Serial Library](https://github.com/nooploop-dev/serial.git)
+- [Serial Library](https://github.com/RoverRobotics-forks/serial-ros2)
 
     This program and hardware devices use serial communication, please click to install the serial library. Note that if it is the first time to use serial port device, you usually need to open the serial port operation authority. For details, please refer to [Fix serial port permission denied errors on Linux](https://websistent.com/fix-serial-port-permission-denied-errors-linux/)
 
@@ -59,20 +59,14 @@ Products Supported
 
 Clone the code and compile it as follows
 
-    cd catkin_workspace/src
-    git clone --recursive https://github.com/nooploop-dev/nlink_parser.git 
+    cd ros2_ws/src
+    git clone --recursive https://github.com/chathushkadhr/nlink_parser.git
+    git checkout ros2
     cd ../
-    catkin_make
-    source devel/setup.bash
+    colcon build
+    source install/setup.bash
 
-Note that each time you open a new command-line window, you need to execute `source devel/setup.bash` to retrieve the ROS workspace environment variable
-
-### Unit Tests
-
-Run
-
-    roscore
-    catkin_make run_tests
+Note that each time you open a new command-line window, you need to execute `source install/setup.bash` to retrieve the ROS workspace environment variable
 
 ## Products Usage
 
@@ -80,7 +74,7 @@ Run
 
 Run
 
-    roslaunch nlink_parser linktrack.launch
+    ros2 launch nlink_parser linktrack_launch.py
 
 Parameter
    - **`port_name`** Serial port name, default: `/dev/ttyUSB0`.
@@ -88,7 +82,7 @@ Parameter
   
 Run msg converter if you need RVIZ support
 
-    roslaunch nlink_parser linktrack_rviz.launch
+    ros2 launch nlink_parser linktrack_rviz.launch.py
 
 Subscribed Topics
 

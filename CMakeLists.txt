@@ -1,198 +1,163 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.8)
 project(nlink_parser)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-#add_compile_options(-std=c++11)
-add_definitions(-std=c++11)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    std_msgs
-    message_generation
-    )
+# find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(serial REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 
-## Generate messages in the 'msg' folder
-add_message_files(
-    FILES
-    LinktrackAnchorframe0.msg
-    LinktrackNode0.msg
-    LinktrackNode1.msg
-    LinktrackNode2.msg
-    LinktrackNodeframe0.msg
-    LinktrackNodeframe1.msg
-    LinktrackNodeframe2.msg
-    LinktrackNodeframe3.msg
-    LinktrackTag.msg
-    LinktrackTagframe0.msg
-    TofsenseCascade.msg
-    TofsenseFrame0.msg
-    LinktrackAoaNode0.msg
-    LinktrackAoaNodeframe0.msg
-    LinktrackNode4Anchor.msg
-    LinktrackNode4Tag.msg
-    LinktrackNodeframe4.msg
-    LinktrackNode5.msg
-    LinktrackNodeframe5.msg
-    LinktrackNode6.msg
-    LinktrackNodeframe6.msg
-    TofsenseMFrame0.msg
-    TofsenseMFrame0Pixel.msg
-    IotFrame0.msg
-    IotFrame0Node.msg
-    )
+#add_subdirectory(lib/protocol_extracter)
 
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+set(msg_files
+  "msg/LinktrackAnchorframe0.msg"
+  "msg/LinktrackNode0.msg"
+  "msg/LinktrackNode1.msg"
+  "msg/LinktrackNode2.msg"
+  "msg/LinktrackNodeframe0.msg"
+  "msg/LinktrackNodeframe1.msg"
+  "msg/LinktrackNodeframe2.msg"
+  "msg/LinktrackNodeframe3.msg"
+  "msg/LinktrackTag.msg"
+  "msg/LinktrackTagframe0.msg"
+  "msg/TofsenseCascade.msg"
+  "msg/TofsenseFrame0.msg"
+  "msg/LinktrackAoaNode0.msg"
+  "msg/LinktrackAoaNodeframe0.msg"
+  "msg/LinktrackNode4Anchor.msg"
+  "msg/LinktrackNode4Tag.msg"
+  "msg/LinktrackNodeframe4.msg"
+  "msg/LinktrackNode5.msg"
+  "msg/LinktrackNodeframe5.msg"
+  "msg/LinktrackNode6.msg"
+  "msg/LinktrackNodeframe6.msg"
+  "msg/TofsenseMFrame0.msg"
+  "msg/TofsenseMFrame0Pixel.msg"
+  "msg/IotFrame0.msg"
+  "msg/IotFrame0Node.msg"
+)
 
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+rosidl_generate_interfaces(${PROJECT_NAME}
+   ${msg_files}
+)
 
-## Generate added messages and services with any dependencies listed here
-generate_messages(
-    DEPENDENCIES
-    std_msgs
-    )
+ament_export_dependencies(rosidl_default_runtime)
 
-catkin_package(
-    #  INCLUDE_DIRS include
-    #  LIBRARIES nlink
-    CATKIN_DEPENDS message_runtime
-    #  DEPENDS system_lib
-    )
-
-###########
-## Build ##
-###########
-
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-include_directories(
-    include
-    ${catkin_INCLUDE_DIRS}
-    src/utils
-    )
+set(
+  DEPENDENCIES
+  rclcpp
+  std_msgs
+  serial
+  geometry_msgs
+  nav_msgs
+  
+)
 
 set(nutils "nutils")
 add_library(${nutils}
-    src/utils/protocol_extracter/nprotocol_base.cpp
-    src/utils/protocol_extracter/nprotocol_extracter.cpp
-    src/utils/nlink_unpack/nlink_utils.c
-    src/utils/nlink_unpack/nlink_linktrack_anchorframe0.c
-    src/utils/nlink_unpack/nlink_linktrack_tagframe0.c
-    src/utils/nlink_unpack/nlink_linktrack_nodeframe0.c
-    src/utils/nlink_unpack/nlink_linktrack_nodeframe1.c
-    src/utils/nlink_unpack/nlink_linktrack_nodeframe2.c
-    src/utils/nlink_unpack/nlink_linktrack_nodeframe3.c
-    src/utils/nlink_unpack/nlink_linktrack_nodeframe4.c
-    src/utils/nlink_unpack/nlink_linktrack_nodeframe5.c
-    src/utils/nlink_unpack/nlink_linktrack_nodeframe6.c
-    src/utils/nlink_unpack/nlink_tofsense_frame0.c
-    src/utils/nlink_unpack/nlink_tofsensem_frame0.c
-    src/utils/nlink_unpack/nlink_linktrack_aoa_nodeframe0.c
-    src/utils/nlink_unpack/nlink_iot_frame0.c
-    src/utils/init_serial.cpp
-    src/utils/nlink_protocol.cpp
-    src/utils/nutils.cpp
-)
-target_link_libraries(${nutils}
-  ${catkin_LIBRARIES}
-  serial
+    lib/protocol_extracter/nprotocol_base.cpp
+    lib/protocol_extracter/nprotocol_extracter.cpp
+    lib/nlink_unpack/nlink_utils.c
+    lib/nlink_unpack/nlink_linktrack_anchorframe0.c
+    lib/nlink_unpack/nlink_linktrack_tagframe0.c
+    lib/nlink_unpack/nlink_linktrack_nodeframe0.c
+    lib/nlink_unpack/nlink_linktrack_nodeframe1.c
+    lib/nlink_unpack/nlink_linktrack_nodeframe2.c
+    lib/nlink_unpack/nlink_linktrack_nodeframe3.c
+    lib/nlink_unpack/nlink_linktrack_nodeframe4.c
+    lib/nlink_unpack/nlink_linktrack_nodeframe5.c
+    lib/nlink_unpack/nlink_linktrack_nodeframe6.c
+    lib/nlink_unpack/nlink_tofsense_frame0.c
+    lib/nlink_unpack/nlink_tofsensem_frame0.c
+    lib/nlink_unpack/nlink_linktrack_aoa_nodeframe0.c
+    lib/nlink_unpack/nlink_iot_frame0.c
+    lib/nlink_protocol.cpp
 )
 
-set(LINKTRACK_NAME "linktrack")
-add_executable(${LINKTRACK_NAME}
-    src/linktrack/init.cpp
-    src/linktrack/main.cpp
-    src/linktrack/protocols.cpp
-    )
-target_link_libraries(${LINKTRACK_NAME}
-#    ${catkin_LIBRARIES}
-    ${nutils}
-    )
-add_dependencies(${LINKTRACK_NAME} ${PROJECT_NAME}_generate_messages_cpp)
 
-set(LINKTRACK_RVIZ_NAME "linktrack_rviz_converter")
-add_executable(${LINKTRACK_RVIZ_NAME}
-    src/linktrack/main_rviz_converter.cpp
-    )
-target_link_libraries(${LINKTRACK_RVIZ_NAME}
-    ${nutils}
-    )
-add_dependencies(${LINKTRACK_RVIZ_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-
-set(TOFSENSE_NAME "tofsense")
-add_executable(${TOFSENSE_NAME}
-    src/tofsense/init.cpp
-    src/tofsense/main.cpp
-    )
-target_link_libraries(${TOFSENSE_NAME}
-#    ${catkin_LIBRARIES}
-    ${nutils}
-    )
-add_dependencies(${TOFSENSE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-
-set(EXE_NAME "tofsensem")
-add_executable(${EXE_NAME}
-    src/tofsensem/init.cpp
-    src/tofsensem/main.cpp
-    )
-target_link_libraries(${EXE_NAME}
-    ${nutils}
-    )
-add_dependencies(${EXE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-
-set(EXE_NAME "linktrack_aoa")
-add_executable(${EXE_NAME}
-    src/linktrack_aoa/init.cpp
-    src/linktrack_aoa/main.cpp
-    src/linktrack/protocols.cpp
-    )
-target_link_libraries(${EXE_NAME}
-#    ${catkin_LIBRARIES}
-    ${nutils}
-    )
-add_dependencies(${EXE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-
-set(EXE_NAME "iot")
-add_executable(${EXE_NAME}
-    src/iot/init.cpp
-    src/iot/main.cpp
-    )
-target_link_libraries(${EXE_NAME}
-    ${nutils}
-    )
-add_dependencies(${EXE_NAME} ${PROJECT_NAME}_generate_messages_cpp)
-
-
-#############
-## Testing ##
-#############
-if(${CATKIN_ENABLE_TESTING})
-    find_package(rostest REQUIRED)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-    ## Add gtest based cpp test target and link libraries
-    catkin_add_gtest(${PROJECT_NAME}_test
-        src/linktrack/init.cpp
-        src/linktrack/protocols.cpp
-        src/tofsense/init.cpp
-        src/linktrack_aoa/init.cpp
-        test/test_nlink_parser.cpp
-        src/tofsensem/init.cpp
-        src/iot/init.cpp
-        )
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
 endif()
 
-if(TARGET ${PROJECT_NAME}_test)
-    target_link_libraries(${PROJECT_NAME}_test  ${nutils})
-endif()
+set(
+  executables
+  src/linktrack/main.cpp
+  src/linktrack/linktrack_driver.cpp
+  src/linktrack/protocols/nlt_anchorframe0.cpp
+  src/linktrack/protocols/nlt_tagframe0.cpp
+  src/linktrack/protocols/nlt_nodeframe0.cpp
+  src/linktrack/protocols/nlt_nodeframe1.cpp
+  src/linktrack/protocols/nlt_nodeframe2.cpp
+  src/linktrack/protocols/nlt_nodeframe3.cpp
+  src/linktrack/protocols/nlt_nodeframe4.cpp
+  src/linktrack/protocols/nlt_nodeframe5.cpp
+  src/linktrack/protocols/nlt_nodeframe6.cpp
+)
+
+add_executable(exec_uwb ${executables}) 
+add_executable(rviz_uwb src/linktrack/main_rviz src/linktrack/rviz_converter.cpp) 
+
+ament_target_dependencies(exec_uwb ${DEPENDENCIES})
+ament_target_dependencies(rviz_uwb ${DEPENDENCIES})
+
+target_include_directories(exec_uwb  PUBLIC
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/nlink_unpack>
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/protocol_extracter>
+   $<INSTALL_INTERFACE:include>)
+
+target_include_directories(rviz_uwb  PUBLIC
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>  
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib>
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/nlink_unpack>
+   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/protocol_extracter>
+   $<INSTALL_INTERFACE:include>)
+
+target_compile_features(exec_uwb PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
+target_compile_features(rviz_uwb PUBLIC c_std_99 cxx_std_17)
+
+rosidl_get_typesupport_target(cpp_typesupport_target
+  ${PROJECT_NAME} "rosidl_typesupport_cpp")
+
+target_link_libraries(exec_uwb "${cpp_typesupport_target}")
+target_link_libraries(rviz_uwb "${cpp_typesupport_target}")
+target_link_libraries(exec_uwb ${nutils})
+
+
+install(TARGETS exec_uwb
+ DESTINATION lib/${PROJECT_NAME}
+ )
+install(TARGETS rviz_uwb
+DESTINATION lib/${PROJECT_NAME}
+)
+
+
+install(
+  DIRECTORY include launch lib
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(
+  TARGETS ${nutils}
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+  )
+
+ament_package()
